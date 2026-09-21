@@ -187,7 +187,7 @@
                     <span id="cartTotalPrice" class="text-purple-700">0 ج.م</span>
                 </div>
                 <!-- زر متوهج ومتحرك لإتمام الطلب -->
-                <button onclick="checkout()" class="btn-glow w-full text-white py-3.5 rounded-xl font-extrabold transition shadow-lg flex items-center justify-center gap-2 text-base">
+                <button onclick="openCheckoutModal()" class="btn-glow w-full text-white py-3.5 rounded-xl font-extrabold transition shadow-lg flex items-center justify-center gap-2 text-base">
                     <i class="fa-solid fa-bolt text-yellow-300 animate-bounce"></i>
                     <span>إتمام الطلب الآن</span>
                 </button>
@@ -195,7 +195,45 @@
         </div>
     </div>
 
-    <div id="toastContainer" class="fixed bottom-5 left-5 z-50 space-y-2 pointer-events-none"></div>
+    <!-- نافذة إدخال بيانات العميل للشحن -->
+    <div id="checkoutModal" class="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl relative border border-purple-100">
+            <button onclick="closeCheckoutModal()" class="absolute top-4 left-4 w-8 h-8 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center hover:bg-gray-200">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 class="text-xl font-bold text-purple-900 mb-1 flex items-center gap-2">
+                <i class="fa-solid fa-truck-ramp-box text-pink-600"></i>
+                بيانات الشحن
+            </h3>
+            <p class="text-xs text-gray-500 mb-4">من فضلك أدخلي بياناتك لتأكيد الطلب عبر التليجرام</p>
+
+            <form id="checkoutForm" onsubmit="sendOrderToTelegram(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">الاسم بالكامل *</label>
+                    <input type="text" id="customerName" required placeholder="أدخلي اسمك الكريمة" class="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">رقم الهاتف *</label>
+                    <input type="tel" id="customerPhone" required placeholder="01xxxxxxxxx" class="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">العنوان التفصيلي (المنطقة / الشارع / رقم العمارة) *</label>
+                    <textarea id="customerAddress" required rows="2" placeholder="مثال: القاهرة - المرج - شارع ... - عمارة ..." class="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">ملاحظات إضافية (اختياري)</label>
+                    <input type="text" id="customerNotes" placeholder="أي تفاصيل تودين إضافتها..." class="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none">
+                </div>
+
+                <button type="submit" id="submitOrderBtn" class="btn-glow w-full text-white py-3 rounded-xl font-bold mt-2 flex items-center justify-center gap-2">
+                    <i class="fa-paper-plane fa-solid"></i>
+                    <span>إرسال الطلب عبر التليجرام</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="fixed bottom-5 left-5 z-[70] space-y-2 pointer-events-none"></div>
 
     <footer class="bg-gray-900 text-gray-300 pt-12 pb-8 border-t border-gray-800 mt-auto">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-gray-500">
@@ -204,6 +242,11 @@
     </footer>
 
     <script>
+        // ==================== إعدادات تليجرام API ====================
+        const TELEGRAM_BOT_TOKEN = '8990133528:AAF2gJdcXJP5hby34YIelJySRW_BbkxVN5Q';
+        const TELEGRAM_CHAT_ID = '5847571012';
+        // ============================================================
+
         const PUBLISHED_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQTZDOSVs-GQIhmECz0wYF05w9qgVmMT8HqQ3vq8qUp14t69IIG4B934JyAuspIR_r_ajtAQjoXUi60/pub?output=csv';
 
         const fallbackRawData = [
@@ -548,12 +591,90 @@
             }, 3000);
         }
 
-        function checkout() {
+        // ==================== وظائف الشحن وتليجرام API ====================
+        function openCheckoutModal() {
             if (cart.length === 0) {
-                showToast("السلة فارغة!", true);
+                showToast("السلة فارغة! يرجى إضافة منتجات أولاً", true);
                 return;
             }
-            showToast("جاري تحويلك لإتمام الطلب...");
+            document.getElementById('checkoutModal').classList.remove('hidden');
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkoutModal').classList.add('hidden');
+        }
+
+        async function sendOrderToTelegram(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('customerName').value.trim();
+            const phone = document.getElementById('customerPhone').value.trim();
+            const address = document.getElementById('customerAddress').value.trim();
+            const notes = document.getElementById('customerNotes').value.trim();
+
+            const btn = document.getElementById('submitOrderBtn');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>جاري إرسال الطلب...</span>`;
+
+            let subtotal = 0;
+            let itemsText = cart.map((item, index) => {
+                const total = item.price * item.qty;
+                subtotal += total;
+                return `${index + 1}. *${item.title}*\n   • المقاس: \`${item.size}\` | الكمية: \`${item.qty}\`\n   • السعر: ${item.price} ج.م (الإجمالي: ${total} ج.م)`;
+            }).join('\n\n');
+
+            let shipping = subtotal >= 1500 ? 0 : 50;
+            let grandTotal = subtotal + shipping;
+
+            // تنسيق رسالة التليجرام
+            let message = `🛍️ *طلب جديد من المتجر الإلكتروني (المالكي)*\n`;
+            message += `-----------------------------------\n`;
+            message += `👤 *اسم العميل:* ${name}\n`;
+            message += `📞 *رقم الهاتف:* \`${phone}\`\n`;
+            message += `📍 *العنوان:* ${address}\n`;
+            if (notes) message += `📝 *ملاحظات:* ${notes}\n`;
+            message += `-----------------------------------\n`;
+            message += `📦 *المنتجات المطلوبة:*\n\n${itemsText}\n`;
+            message += `-----------------------------------\n`;
+            message += `💵 *إجمالي المنتجات:* ${subtotal} ج.م\n`;
+            message += `🚚 *مصاريف الشحن:* ${shipping === 0 ? 'مجاناً 🎉' : shipping + ' ج.م'}\n`;
+            message += `💰 *الإجمالي النهائي:* *${grandTotal} ج.م*\n`;
+            message += `-----------------------------------\n`;
+            message += `⏰ *تاريخ الطلب:* ${new Date().toLocaleString('ar-EG')}`;
+
+            const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: TELEGRAM_CHAT_ID,
+                        text: message,
+                        parse_mode: 'Markdown'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.ok) {
+                    showToast("🎉 تم إرسال طلبك بنجاح! سنتواصل معك قريباً.");
+                    cart = [];
+                    updateCartUI();
+                    closeCheckoutModal();
+                    toggleCartModal();
+                    document.getElementById('checkoutForm').reset();
+                } else {
+                    showToast("عذراً، حدث خطأ أثناء إرسال الطلب. يرجى المحاولة لاحقاً.", true);
+                    console.error("Telegram API Error:", data);
+                }
+            } catch (error) {
+                showToast("تعذر الاتصال بالتليجرام، يرجى التأكد من الاتصال بالإنترنت.", true);
+                console.error("Fetch Error:", error);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-paper-plane fa-solid"></i> <span>إرسال الطلب عبر التليجرام</span>`;
+            }
         }
 
         window.onload = fetchProductsFromSheet;

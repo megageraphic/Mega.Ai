@@ -166,7 +166,6 @@
                 </button>
             </div>
 
-            <!-- إعلان الشحن المجاني -->
             <div id="shippingBanner" class="mt-3 p-3 bg-pink-50 border border-pink-200 rounded-xl text-xs text-center text-pink-700 font-bold">
                 🚚 مصاريف الشحن 50 ج (القاهرة والجيزة) — <span class="text-purple-800">اشتري بـ 1500 ج للحصول على شحن مجاني!</span>
             </div>
@@ -186,7 +185,6 @@
                     <span>الإجمالي الكلي:</span>
                     <span id="cartTotalPrice" class="text-purple-700">0 ج.م</span>
                 </div>
-                <!-- زر إتمام الطلب -->
                 <button onclick="openCheckoutModal()" class="btn-glow w-full text-white py-3.5 rounded-xl font-extrabold transition shadow-lg flex items-center justify-center gap-2 text-base">
                     <i class="fa-solid fa-bolt text-yellow-300 animate-bounce"></i>
                     <span>إتمام الطلب الآن</span>
@@ -242,10 +240,10 @@
     </footer>
 
     <script>
-        // ==================== إعدادات تليجرام API ====================
-        const TELEGRAM_BOT_TOKEN = '8990133528:AAF2gJdcXJP5hby34YIelJySRW_BbkxVN5Q';
+        // ==================== بيانات تليجرام المحدثة ====================
+        const TELEGRAM_BOT_TOKEN = '8990133528:AAF-Pb82_knno-g_pYxE3qBeEH6_8FoCtvQ';
         const TELEGRAM_CHAT_ID = '5847571012';
-        // ============================================================
+        // =============================================================
 
         const PUBLISHED_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQTZDOSVs-GQIhmECz0wYF05w9qgVmMT8HqQ3vq8qUp14t69IIG4B934JyAuspIR_r_ajtAQjoXUi60/pub?output=csv';
 
@@ -591,7 +589,7 @@
             }, 3000);
         }
 
-        // ==================== وظائف الشحن وتليجرام API المباشرة ====================
+        // ==================== إرسال الطلب المباشر للتليجرام ====================
         function openCheckoutModal() {
             if (cart.length === 0) {
                 showToast("السلة فارغة! يرجى إضافة منتجات أولاً", true);
@@ -641,14 +639,21 @@
             message += `-----------------------------------\n`;
             message += `⏰ الوقت: ${new Date().toLocaleString('ar-EG')}`;
 
-            // حل مشكلة CORS عبر البروكسي العام لمنع حظر الطلبات
-            const proxyUrl = 'https://api.allorigins.win/raw?url=';
-            const targetUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${encodeURIComponent(message)}`;
+            const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
 
             try {
-                const response = await fetch(proxyUrl + encodeURIComponent(targetUrl));
+                const response = await fetch(telegramUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: TELEGRAM_CHAT_ID,
+                        text: message
+                    })
+                });
 
-                if (response.ok) {
+                const data = await response.json();
+
+                if (data.ok) {
                     showToast("🎉 تم إرسال طلبك بنجاح! سنتواصل معك قريباً.");
                     cart = [];
                     updateCartUI();
@@ -656,22 +661,12 @@
                     toggleCartModal();
                     document.getElementById('checkoutForm').reset();
                 } else {
-                    // طريقة بديلة في حال تعثر البروكسي
-                    window.open(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${encodeURIComponent(message)}`, '_blank');
-                    showToast("تم تحويل الطلب بنجاح!");
-                    cart = [];
-                    updateCartUI();
-                    closeCheckoutModal();
-                    toggleCartModal();
+                    showToast("تعذر الإرسال، تحقق من صحة البيانات أو اضغط Start للبوت", true);
+                    console.error("Telegram Error:", data);
                 }
             } catch (error) {
-                console.warn("المحاولة عبر Proxy تعذرت، فتح الرابط المباشر...");
-                window.open(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${encodeURIComponent(message)}`, '_blank');
-                showToast("تم تحويل الطلب بنجاح!");
-                cart = [];
-                updateCartUI();
-                closeCheckoutModal();
-                toggleCartModal();
+                showToast("تعذر الإرسال، تحقق من الاتصال بالإنترنت", true);
+                console.error("Error:", error);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = `<i class="fa-paper-plane fa-solid"></i> <span>إرسال الطلب عبر التليجرام</span>`;

@@ -13,7 +13,13 @@
     <!-- PapaParse Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #fdf8fa; }
+        body { 
+            font-family: 'Tajawal', sans-serif; 
+            background: linear-gradient(rgba(253, 248, 250, 0.92), rgba(253, 248, 250, 0.92)), url('9.png');
+            background-attachment: fixed;
+            background-position: center;
+            background-size: cover;
+        }
         .size-btn.selected {
             background-color: #7e22ce !important;
             color: #ffffff !important;
@@ -31,7 +37,7 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="text-gray-800 bg-[#faf5f8] min-h-screen flex flex-col">
+<body class="text-gray-800 min-h-screen flex flex-col">
 
     <!-- Header / Navbar -->
     <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-sm border-b border-purple-100">
@@ -110,14 +116,27 @@
                 </button>
             </div>
 
+            <!-- إعلان الشحن المجاني -->
+            <div id="shippingBanner" class="mt-3 p-3 bg-pink-50 border border-pink-200 rounded-xl text-xs text-center text-pink-700 font-bold">
+                🚚 مصاريف الشحن 50 ج (القاهرة والجيزة) — <span class="text-purple-800">اشتري بـ 1500 ج للحصول على شحن مجاني!</span>
+            </div>
+
             <div id="cartItemsList" class="flex-1 overflow-y-auto py-4 space-y-4"></div>
 
-            <div class="border-t border-gray-100 pt-4 space-y-4">
-                <div class="flex items-center justify-between text-lg font-bold">
-                    <span>الإجمالي:</span>
+            <div class="border-t border-gray-100 pt-4 space-y-3">
+                <div class="flex items-center justify-between text-sm text-gray-600">
+                    <span>إجمالي المنتجات:</span>
+                    <span id="cartSubtotal" class="font-bold text-gray-800">0 ج.م</span>
+                </div>
+                <div class="flex items-center justify-between text-sm text-gray-600">
+                    <span>مصاريف الشحن (القاهرة والجيزة):</span>
+                    <span id="shippingFee" class="font-bold text-pink-600">50 ج.م</span>
+                </div>
+                <div class="flex items-center justify-between text-lg font-bold border-t border-gray-100 pt-2">
+                    <span>الإجمالي الكلي:</span>
                     <span id="cartTotalPrice" class="text-purple-700">0 ج.م</span>
                 </div>
-                <button onclick="checkout()" class="w-full bg-gradient-to-r from-purple-700 to-pink-600 text-white py-3.5 rounded-xl font-bold">إتمام الطلب الآن</button>
+                <button onclick="checkout()" class="w-full bg-gradient-to-r from-purple-700 to-pink-600 text-white py-3.5 rounded-xl font-bold hover:opacity-95 transition shadow-lg">إتمام الطلب الآن</button>
             </div>
         </div>
     </div>
@@ -134,7 +153,6 @@
         const SHEET_ID = '1IqEeQumHVsjazUIv-3QRngBLFf7PGayjt4yC-mzK3QE';
         const PUBLISHED_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQTZDOSVs-GQIhmECz0wYF05w9qgVmMT8HqQ3vq8qUp14t69IIG4B934JyAuspIR_r_ajtAQjoXUi60/pub?output=csv';
 
-        // بيانات احتياطية تعمل فوراً في حال عدم وجود إنترنت أو استمرار حظر الملف المحلي
         const fallbackRawData = [
             { id: "1", title: "فستان سهرة راقي", category: "فساتين", image: "9.png", badge: "الأكثر مبيعاً", size: "S", price: 700, stock: 5 },
             { id: "1", title: "فستان سهرة راقي", category: "فساتين", image: "9.png", badge: "الأكثر مبيعاً", size: "M", price: 750, stock: 3 },
@@ -150,7 +168,6 @@
         let currentCategory = 'all';
 
         async function fetchProductsFromSheet() {
-            // محاولة 1: الربط مع AllOrigins Proxy
             try {
                 const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(PUBLISHED_URL)}`;
                 const res = await fetch(proxyUrl);
@@ -160,10 +177,9 @@
                     return;
                 }
             } catch (e) {
-                console.warn("المحاولة الأولى عبر AllOrigins تعذرت...");
+                console.warn("المحاولة الأولى تعذرت...");
             }
 
-            // محاولة 2: القراءة المباشرة من PapaParse
             Papa.parse(PUBLISHED_URL, {
                 download: true,
                 header: true,
@@ -186,7 +202,6 @@
                             return;
                         }
                     }
-                    // الاستعانة بالبيانات الاحتياطية في حال تعثر الجلب المباشر
                     useFallbackData();
                 },
                 error: function() {
@@ -221,7 +236,6 @@
         }
 
         function useFallbackData() {
-            console.log("تم تحميل البيانات الاحتياطية بنجاح.");
             processRawData(fallbackRawData);
         }
 
@@ -368,7 +382,7 @@
             const inCart = cart.filter(item => item.id == productId && item.size === size).reduce((sum, item) => sum + item.qty, 0);
 
             if (inCart + qty > sizeData.stock) {
-                showToast(`عذراً، الكمية المتاحة في المخزن لمقاس (${size}) هي ${sizeData.stock} فقط!`, true);
+                showToast(`عذراً، الكمية المتاحة لمقاس (${size}) هي ${sizeData.stock} فقط!`, true);
                 return;
             }
 
@@ -396,18 +410,24 @@
         function updateCartUI() {
             document.getElementById('cartBadge').innerText = cart.reduce((sum, item) => sum + item.qty, 0);
             const cartList = document.getElementById('cartItemsList');
-            const cartTotal = document.getElementById('cartTotalPrice');
+            const cartSubtotal = document.getElementById('cartSubtotal');
+            const shippingFee = document.getElementById('shippingFee');
+            const cartTotalPrice = document.getElementById('cartTotalPrice');
+            const shippingBanner = document.getElementById('shippingBanner');
 
             if (cart.length === 0) {
                 cartList.innerHTML = `<div class="text-center py-12 text-gray-400"><p>سلة التسوق فارغة</p></div>`;
-                cartTotal.innerText = '0 ج.م';
+                cartSubtotal.innerText = '0 ج.م';
+                shippingFee.innerText = '50 ج.م';
+                cartTotalPrice.innerText = '0 ج.م';
+                shippingBanner.innerHTML = `🚚 مصاريف الشحن 50 ج (القاهرة والجيزة) — <span class="text-purple-800">اشتري بـ 1500 ج للحصول على شحن مجاني!</span>`;
                 return;
             }
 
-            let totalPrice = 0;
+            let subtotal = 0;
             cartList.innerHTML = cart.map((item, index) => {
                 const itemTotal = item.price * item.qty;
-                totalPrice += itemTotal;
+                subtotal += itemTotal;
                 return `
                     <div class="flex items-center gap-3 p-3 bg-purple-50/50 rounded-xl border border-purple-100">
                         <img src="${item.image}" class="w-16 h-16 object-cover rounded-lg bg-white" onerror="this.src='9.png'">
@@ -424,7 +444,20 @@
                 `;
             }).join('');
 
-            cartTotal.innerText = `${totalPrice} ج.م`;
+            // احتساب الشحن المجاني عند الوصول لـ 1500 ج.م
+            let shipping = subtotal >= 1500 ? 0 : 50;
+
+            if (subtotal >= 1500) {
+                shippingFee.innerHTML = `<span class="line-through text-gray-400 text-xs ml-1">50 ج.م</span> <span class="text-green-600">مجاناً 🎉</span>`;
+                shippingBanner.innerHTML = `🎉 مبروك! حصلت على <span class="text-green-700">شحن مجاني</span> لمشترياتك!`;
+            } else {
+                const remaining = 1500 - subtotal;
+                shippingFee.innerText = '50 ج.م';
+                shippingBanner.innerHTML = `🚚 مصاريف الشحن 50 ج (القاهرة والجيزة) — أضيفي بـ <span class="text-purple-800 font-extrabold">${remaining} ج.م</span> للحصول على شحن مجاني!`;
+            }
+
+            cartSubtotal.innerText = `${subtotal} ج.م`;
+            cartTotalPrice.innerText = `${subtotal + shipping} ج.م`;
         }
 
         function removeFromCart(index) {
@@ -478,6 +511,14 @@
                 toast.style.opacity = '0';
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
+        }
+
+        function checkout() {
+            if (cart.length === 0) {
+                showToast("السلة فارغة!", true);
+                return;
+            }
+            showToast("جاري تحويلك لإتمام الطلب...");
         }
 
         window.onload = fetchProductsFromSheet;

@@ -26,6 +26,14 @@
             border-color: #7e22ce !important;
             transform: scale(1.05);
         }
+        .size-btn.out-of-stock {
+            background-color: #f3f4f6 !important;
+            color: #9ca3af !important;
+            border-color: #e5e7eb !important;
+            text-decoration: line-through;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
         @keyframes slideIn {
             from { transform: translateY(100%) opacity(0); }
             to { transform: translateY(0) opacity(1); }
@@ -248,11 +256,11 @@
         const PUBLISHED_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQTZDOSVs-GQIhmECz0wYF05w9qgVmMT8HqQ3vq8qUp14t69IIG4B934JyAuspIR_r_ajtAQjoXUi60/pub?output=csv';
 
         const fallbackRawData = [
-            { id: "1", title: "فستان سهرة راقي", category: "فساتين", image: "9.png", badge: "الأكثر مبيعاً", size: "S", price: 700, stock: 5 },
-            { id: "1", title: "فستان سهرة راقي", category: "فساتين", image: "9.png", badge: "الأكثر مبيعاً", size: "M", price: 750, stock: 3 },
-            { id: "1", title: "فستان سهرة راقي", category: "فساتين", image: "9.png", badge: "الأكثر مبيعاً", size: "L", price: 800, stock: 2 },
-            { id: "2", title: "عباية كاجوال حديثة", category: "عبايات", image: "9.png", badge: "جديد", size: "M", price: 500, stock: 10 },
-            { id: "2", title: "عباية كاجوال حديثة", category: "عبايات", image: "9.png", badge: "جديد", size: "L", price: 550, stock: 4 }
+            { id: "1", title: "فستان سهرة راقي", category: "فساتين", image: "9.png", badge: "الأكثر مبيعاً", size: "S", price: 700, stock: 5, sales: 12 },
+            { id: "1", title: "فستان سهرة راقي", category: "فساتين", image: "9.png", badge: "الأكثر مبيعاً", size: "M", price: 750, stock: 3, sales: 8 },
+            { id: "1", title: "فستان سهرة راقي", category: "فساتين", image: "9.png", badge: "الأكثر مبيعاً", size: "L", price: 800, stock: 0, sales: 15 },
+            { id: "2", title: "عباية كاجوال حديثة", category: "عبايات", image: "9.png", badge: "جديد", size: "M", price: 500, stock: 10, sales: 5 },
+            { id: "2", title: "عباية كاجوال حديثة", category: "عبايات", image: "9.png", badge: "جديد", size: "L", price: 550, stock: 4, sales: 2 }
         ];
 
         let products = [];
@@ -296,7 +304,8 @@
                         badge: (row.badge || row.Badge || '').trim() || null,
                         size: (row.size || row.Size || 'M').trim(),
                         price: Number(row.price || row.Price || 0),
-                        stock: Number(row.stock || row.Stock || 0)
+                        stock: Number(row.stock || row.Stock || 0),
+                        sales: Number(row.sales || row.Sales || row.sold || row.Sold || 0) // دعم إضافة المبيعات من شيت جوجل
                     })).filter(item => item.id !== '');
 
                     if (rawData.length > 0) {
@@ -329,15 +338,16 @@
                 }
                 grouped[item.id].sizes[item.size] = {
                     price: item.price,
-                    stock: item.stock
+                    stock: item.stock,
+                    sales: item.sales
                 };
             });
 
             products = Object.values(grouped);
 
             products.forEach(p => {
-                const firstSize = Object.keys(p.sizes)[0];
-                selectedSizes[p.id] = firstSize;
+                const availableSize = Object.keys(p.sizes).find(s => p.sizes[s].stock > 0) || Object.keys(p.sizes)[0];
+                selectedSizes[p.id] = availableSize;
                 selectedQuantities[p.id] = 1;
             });
 
@@ -373,7 +383,12 @@
                 const availableSizes = Object.keys(product.sizes);
                 const currentSize = selectedSizes[product.id] || availableSizes[0];
                 const currentQty = selectedQuantities[product.id] || 1;
-                const sizeData = product.sizes[currentSize] || { price: 0, stock: 0 };
+                const sizeData = product.sizes[currentSize] || { price: 0, stock: 0, sales: 0 };
+
+                // حساب إجمالي المخزون وإجمالي المبيعات لكافة المقاسات
+                const totalStock = availableSizes.reduce((acc, s) => acc + (product.sizes[s].stock || 0), 0);
+                const totalSales = availableSizes.reduce((acc, s) => acc + (product.sizes[s].sales || 0), 0);
+                const isOutOfStock = sizeData.stock <= 0;
 
                 return `
                 <div class="product-card bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-purple-50 flex flex-col justify-between group">
@@ -381,43 +396,65 @@
                         <div class="relative w-full h-72 bg-purple-50 overflow-hidden">
                             <img src="${product.image}" alt="${product.title}" 
                                 loading="lazy"
-                                class="product-img w-full h-full object-cover object-center"
+                                class="product-img w-full h-full object-cover object-center ${totalStock <= 0 ? 'grayscale opacity-75' : ''}"
                                 onerror="this.src='9.png'">
-                            ${product.badge ? `<span class="absolute top-3 right-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">${product.badge}</span>` : ''}
+                            ${totalStock <= 0 ? `
+                                <span class="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">نفد من المخزون</span>
+                            ` : product.badge ? `
+                                <span class="absolute top-3 right-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">${product.badge}</span>
+                            ` : ''}
+
+                            ${totalSales > 0 ? `
+                                <span class="absolute bottom-3 right-3 bg-black/60 backdrop-blur-md text-white text-[11px] font-semibold px-2.5 py-1 rounded-lg flex items-center gap-1">
+                                    <i class="fa-solid fa-fire text-yellow-400"></i> تم بيع ${totalSales} قطع
+                                </span>
+                            ` : ''}
                         </div>
 
                         <div class="p-5 text-center">
                             <span class="text-xs text-purple-600 font-semibold bg-purple-50 px-2.5 py-0.5 rounded-full inline-block mb-2">${product.category}</span>
                             <h3 class="text-lg font-bold text-gray-800 mb-1">${product.title}</h3>
-                            <p class="text-xl font-extrabold text-pink-600 mb-4">${sizeData.price} <span class="text-xs text-gray-500 font-normal">ج.م</span></p>
+                            <p class="text-xl font-extrabold text-pink-600 mb-2">${sizeData.price} <span class="text-xs text-gray-500 font-normal">ج.م</span></p>
 
-                            <div class="mb-4">
+                            <div class="mb-3">
                                 <label class="block text-xs font-medium text-gray-500 mb-1.5">اختاري المقاس:</label>
                                 <div class="flex justify-center gap-1.5 flex-wrap">
-                                    ${availableSizes.map(size => `
-                                        <button onclick="selectSize('${product.id}', '${size}')" 
-                                            class="size-btn ${currentSize === size ? 'selected' : ''} w-9 h-8 rounded-lg border border-gray-200 text-xs font-bold text-gray-700 hover:border-purple-600 transition flex items-center justify-center">
-                                            ${size}
-                                        </button>
-                                    `).join('')}
+                                    ${availableSizes.map(size => {
+                                        const szStock = product.sizes[size].stock;
+                                        const isSzOut = szStock <= 0;
+                                        return `
+                                            <button onclick="selectSize('${product.id}', '${size}')" 
+                                                class="size-btn ${currentSize === size ? 'selected' : ''} ${isSzOut ? 'out-of-stock' : ''} w-9 h-8 rounded-lg border border-gray-200 text-xs font-bold text-gray-700 hover:border-purple-600 transition flex items-center justify-center"
+                                                title="${isSzOut ? 'غير متوفر' : 'متوفر: ' + szStock}">
+                                                ${size}
+                                            </button>
+                                        `;
+                                    }).join('')}
                                 </div>
                             </div>
 
                             <div class="mb-4 flex items-center justify-center">
-                                <div class="inline-flex items-center border border-purple-200 rounded-full bg-purple-50/50 p-1">
-                                    <button onclick="updateQty('${product.id}', -1)" class="w-8 h-8 rounded-full bg-white shadow-sm text-purple-800 font-bold text-lg flex items-center justify-center">-</button>
-                                    <span class="w-12 text-center font-bold text-sm text-gray-800">${currentQty}</span>
-                                    <button onclick="updateQty('${product.id}', 1)" class="w-8 h-8 rounded-full bg-white shadow-sm text-purple-800 font-bold text-lg flex items-center justify-center">+</button>
+                                <div class="inline-flex items-center border border-purple-200 rounded-full bg-purple-50/50 p-1 ${isOutOfStock ? 'opacity-50 pointer-events-none' : ''}">
+                                    <button onclick="updateQty('${product.id}', -1)" class="w-8 h-8 rounded-full bg-white shadow-sm text-purple-800 font-bold text-lg flex items-center justify-center" ${isOutOfStock ? 'disabled' : ''}>-</button>
+                                    <span class="w-12 text-center font-bold text-sm text-gray-800">${isOutOfStock ? 0 : currentQty}</span>
+                                    <button onclick="updateQty('${product.id}', 1)" class="w-8 h-8 rounded-full bg-white shadow-sm text-purple-800 font-bold text-lg flex items-center justify-center" ${isOutOfStock ? 'disabled' : ''}>+</button>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="px-5 pb-5 pt-0">
-                        <button onclick="addToCart('${product.id}')" class="btn-glow w-full text-white py-2.5 px-4 rounded-xl font-bold shadow-md flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-cart-plus text-yellow-300"></i>
-                            <span>اطلبي الآن</span>
-                        </button>
+                        ${isOutOfStock ? `
+                            <button disabled class="w-full bg-gray-300 text-gray-600 py-2.5 px-4 rounded-xl font-bold cursor-not-allowed flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-ban text-gray-500"></i>
+                                <span>غير متوفر حالياً</span>
+                            </button>
+                        ` : `
+                            <button onclick="addToCart('${product.id}')" class="btn-glow w-full text-white py-2.5 px-4 rounded-xl font-bold shadow-md flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-cart-plus text-yellow-300"></i>
+                                <span>اطلبي الآن</span>
+                            </button>
+                        `}
                     </div>
                 </div>
                 `;
@@ -434,6 +471,11 @@
             const currentSize = selectedSizes[productId];
             const sizeData = product.sizes[currentSize];
             let current = selectedQuantities[productId] || 1;
+
+            if (sizeData.stock <= 0) {
+                showToast(`عذراً، المقاس (${currentSize}) غير متوفر حالياً!`, true);
+                return;
+            }
 
             const inCart = cart.filter(item => item.id == productId && item.size === currentSize).reduce((sum, item) => sum + item.qty, 0);
 
@@ -453,6 +495,11 @@
             const size = selectedSizes[productId];
             const sizeData = product.sizes[size];
             const qty = selectedQuantities[productId] || 1;
+
+            if (sizeData.stock <= 0) {
+                showToast(`عذراً، المقاس (${size}) غير متوفر حالياً!`, true);
+                return;
+            }
 
             const inCart = cart.filter(item => item.id == productId && item.size === size).reduce((sum, item) => sum + item.qty, 0);
 

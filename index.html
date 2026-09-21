@@ -36,7 +36,7 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* أنيميشن زر اطلب الآن (توهج وتغير لون متوهج وحركة) */
+        /* أنيميشن زر اطلب الآن */
         @keyframes glowingAnimation {
             0% {
                 background-position: 0% 50%;
@@ -61,7 +61,7 @@
             animation: glowingAnimation 2.5s infinite ease-in-out;
         }
 
-        /* أنيميشن شريط الإعلان المتحرك سطر مستمر */
+        /* أنيميشن شريط الإعلان المتحرك */
         @keyframes marquee {
             0% { transform: translateX(100%); }
             100% { transform: translateX(-100%); }
@@ -186,7 +186,7 @@
                     <span>الإجمالي الكلي:</span>
                     <span id="cartTotalPrice" class="text-purple-700">0 ج.م</span>
                 </div>
-                <!-- زر متوهج ومتحرك لإتمام الطلب -->
+                <!-- زر إتمام الطلب -->
                 <button onclick="openCheckoutModal()" class="btn-glow w-full text-white py-3.5 rounded-xl font-extrabold transition shadow-lg flex items-center justify-center gap-2 text-base">
                     <i class="fa-solid fa-bolt text-yellow-300 animate-bounce"></i>
                     <span>إتمام الطلب الآن</span>
@@ -217,7 +217,7 @@
                     <input type="tel" id="customerPhone" required placeholder="01xxxxxxxxx" class="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1">العنوان التفصيلي (المنطقة / الشارع / رقم العمارة) *</label>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">العنوان التفصيلي *</label>
                     <textarea id="customerAddress" required rows="2" placeholder="مثال: القاهرة - المرج - شارع ... - عمارة ..." class="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none"></textarea>
                 </div>
                 <div>
@@ -279,7 +279,7 @@
                     return;
                 }
             } catch (e) {
-                console.warn("تعذر الجلب المباشر أو انتهت المهلة، استخدام البيانات الاحتياطية.");
+                console.warn("تعذر الجلب المباشر، استخدام البيانات الاحتياطية.");
             }
 
             useFallbackData();
@@ -620,27 +620,27 @@
             let itemsText = cart.map((item, index) => {
                 const total = item.price * item.qty;
                 subtotal += total;
-                return `${index + 1}. *${item.title}*\n   • المقاس: \`${item.size}\` | الكمية: \`${item.qty}\`\n   • السعر: ${item.price} ج.م (الإجمالي: ${total} ج.م)`;
+                return `${index + 1}. ${item.title}\n   - المقاس: ${item.size} | الكمية: ${item.qty}\n   - السعر: ${item.price} ج.م (الإجمالي: ${total} ج.م)`;
             }).join('\n\n');
 
             let shipping = subtotal >= 1500 ? 0 : 50;
             let grandTotal = subtotal + shipping;
 
-            // تنسيق رسالة التليجرام
-            let message = `🛍️ *طلب جديد من المتجر الإلكتروني (المالكي)*\n`;
+            // بناء نص الرسالة بأسلوب واضح ومباشر بدون تعقيد
+            let message = `🛍️ طلب جديد من محلات المالكي\n`;
             message += `-----------------------------------\n`;
-            message += `👤 *اسم العميل:* ${name}\n`;
-            message += `📞 *رقم الهاتف:* \`${phone}\`\n`;
-            message += `📍 *العنوان:* ${address}\n`;
-            if (notes) message += `📝 *ملاحظات:* ${notes}\n`;
+            message += `👤 اسم العميل: ${name}\n`;
+            message += `📞 رقم الهاتف: ${phone}\n`;
+            message += `📍 العنوان: ${address}\n`;
+            if (notes) message += `📝 ملاحظات: ${notes}\n`;
             message += `-----------------------------------\n`;
-            message += `📦 *المنتجات المطلوبة:*\n\n${itemsText}\n`;
+            message += `📦 المنتجات المطلوبة:\n\n${itemsText}\n`;
             message += `-----------------------------------\n`;
-            message += `💵 *إجمالي المنتجات:* ${subtotal} ج.م\n`;
-            message += `🚚 *مصاريف الشحن:* ${shipping === 0 ? 'مجاناً 🎉' : shipping + ' ج.م'}\n`;
-            message += `💰 *الإجمالي النهائي:* *${grandTotal} ج.م*\n`;
+            message += `💵 إجمالي المنتجات: ${subtotal} ج.م\n`;
+            message += `🚚 مصاريف الشحن: ${shipping === 0 ? 'مجاناً 🎉' : shipping + ' ج.م'}\n`;
+            message += `💰 الإجمالي الكلي: ${grandTotal} ج.م\n`;
             message += `-----------------------------------\n`;
-            message += `⏰ *تاريخ الطلب:* ${new Date().toLocaleString('ar-EG')}`;
+            message += `⏰ الوقت: ${new Date().toLocaleString('ar-EG')}`;
 
             const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
 
@@ -650,8 +650,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         chat_id: TELEGRAM_CHAT_ID,
-                        text: message,
-                        parse_mode: 'Markdown'
+                        text: message
                     })
                 });
 
@@ -665,11 +664,11 @@
                     toggleCartModal();
                     document.getElementById('checkoutForm').reset();
                 } else {
-                    showToast("عذراً، حدث خطأ أثناء إرسال الطلب. يرجى المحاولة لاحقاً.", true);
+                    showToast("تعذر الإرسال، تأكد من الضغط على Start للبوت في تليجرام أولاً", true);
                     console.error("Telegram API Error:", data);
                 }
             } catch (error) {
-                showToast("تعذر الاتصال بالتليجرام، يرجى التأكد من الاتصال بالإنترنت.", true);
+                showToast("تعذر الاتصال بالإنترنت، حاول مرة أخرى", true);
                 console.error("Fetch Error:", error);
             } finally {
                 btn.disabled = false;

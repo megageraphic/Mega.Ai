@@ -3,511 +3,484 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ميجا لكاميرات المراقبة والأنظمة الأمنية | حماية متكاملة لمنزلك وشركتك</title>
-    
-    <!-- استيراد الخطوط العربية من Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
-    
-    <!-- استيراد مكتبة الأيقونات Font Awesome -->
+    <title>المالكي - للملابس الحريمي</title>
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+    <!-- Google Fonts - Tajawal -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- PapaParse Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        :root {
-            --primary-color: #00b4d8;
-            --secondary-color: #0096b4;
-            --accent-color: #00b4d8;
-            --text-color: #334155;
-            --bg-light: #f1faee;
-            --white: #ffffff;
-            --danger-color: #ef4444;
-            --whatsapp-color: #22c55e;
-            --logo-color: #ffd166;
+        body { font-family: 'Tajawal', sans-serif; background-color: #fdf8fa; }
+        .size-btn.selected {
+            background-color: #7e22ce !important;
+            color: #ffffff !important;
+            border-color: #7e22ce !important;
+            transform: scale(1.05);
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        @keyframes slideIn {
+            from { transform: translateY(100%) opacity(0); }
+            to { transform: translateY(0) opacity(1); }
         }
-
-        body {
-            background-color: var(--bg-light);
-            color: var(--text-color);
-            line-height: 1.6;
-        }
-
-        /* الهيدر */
-        header {
-            background-color: var(--primary-color);
-            color: var(--white);
-            padding: 1rem 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            border-bottom: 2px solid var(--white);
-        }
-
-        @keyframes text-pulse {
-            0% { 
-                transform: scale(1); 
-                opacity: 0.95; 
-            }
-            50% { 
-                transform: scale(1.04); 
-                opacity: 1; 
-                text-shadow: 0 0 14px rgba(255, 209, 102, 0.8), 0 0 2px rgba(0,0,0,0.2); 
-            }
-            100% { 
-                transform: scale(1); 
-                opacity: 0.95; 
-            }
-        }
-
-        .header-logo-text {
-            font-family: 'Cairo', sans-serif;
-            font-size: 1.7rem;
-            font-weight: 900;
-            color: var(--logo-color);
-            text-decoration: none;
-            display: inline-block;
-            animation: text-pulse 2.5s infinite ease-in-out;
-            letter-spacing: 0.8px;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        nav ul {
-            display: flex;
-            list-style: none;
-            gap: 2rem;
-            align-items: center;
-        }
-
-        nav ul li a {
-            color: var(--white);
-            text-decoration: none;
-            transition: opacity 0.3s;
-            font-weight: bold;
-        }
-
-        nav ul li a:hover {
-            opacity: 0.8;
-        }
-
-        .nav-contact-container {
-            position: relative;
-            display: inline-block;
-        }
-
-        .nav-contact-btn {
-            background: none;
-            border: none;
-            color: var(--white);
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            font-family: 'Tajawal', sans-serif;
-            transition: opacity 0.3s;
-        }
-
-        .nav-contact-btn:hover {
-            opacity: 0.8;
-        }
-
-        .nav-sub-icons {
-            display: none;
-            position: absolute;
-            top: 130%;
-            left: 0;
-            background: var(--white);
-            padding: 0.5rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-            gap: 0.5rem;
-            z-index: 10;
-            white-space: nowrap;
-            flex-direction: column;
-        }
-
-        .nav-sub-icons.show {
-            display: flex;
-        }
-
-        .nav-sub-btn {
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            color: var(--white);
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 0.9rem;
-            text-align: center;
-            display: block;
-        }
-
-        /* الواجهة الرئيسية */
-        .hero {
-            background-color: var(--primary-color);
-            color: var(--white);
-            text-align: center;
-            padding: 4rem 2rem 5rem 2rem;
-            position: relative;
-        }
-
-        .hero-img-container {
-            max-width: 750px;
-            margin: 0 auto 2rem auto;
-        }
-
-        .hero-img-container img {
-            width: 100%;
-            height: auto;
-            display: block;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-        }
-
-        .hero h1 {
-            font-family: 'Cairo', sans-serif;
-            font-size: 2.3rem;
-            margin-bottom: 1rem;
-            color: var(--white);
-        }
-
-        .hero p {
-            font-size: 1.1rem;
-            margin-bottom: 2rem;
-            max-width: 650px;
-            margin-left: auto;
-            margin-right: auto;
-            color: var(--white);
-            opacity: 0.95;
-        }
-
-        @keyframes pulse-animation {
-            0% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(255, 209, 102, 0.6);
-            }
-            50% {
-                transform: scale(1.06);
-                box-shadow: 0 0 0 14px rgba(255, 209, 102, 0);
-            }
-            100% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(255, 209, 102, 0);
-            }
-        }
-
-        .btn {
-            background-color: var(--logo-color);
-            color: var(--primary-color);
-            padding: 0.9rem 2.2rem;
-            border: none;
-            border-radius: 30px;
-            font-weight: 800;
-            font-size: 1.05rem;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            animation: pulse-animation 2s infinite;
-            transition: background-color 0.3s, color 0.3s, transform 0.3s;
-        }
-
-        .btn:hover {
-            background-color: #ffe08a;
-            animation: none;
-            transform: scale(1.08);
-        }
-
-        .cta-container {
-            position: relative;
-            display: inline-block;
-        }
-
-        .btn.clicked {
-            background-color: var(--danger-color) !important;
-            color: var(--white) !important;
-            animation: none !important;
-        }
-
-        .sub-icons {
-            display: none;
-            position: absolute;
-            top: 125%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--white);
-            padding: 0.5rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-            gap: 0.5rem;
-            z-index: 10;
-            white-space: nowrap;
-        }
-
-        .sub-icons.show {
-            display: flex;
-        }
-
-        .sub-btn {
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            color: var(--white);
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 0.9rem;
-            display: inline-block;
-        }
-
-        .whatsapp-btn {
-            background-color: var(--whatsapp-color);
-        }
-
-        .call-btn {
-            background-color: var(--danger-color);
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: auto;
-            padding: 4rem 2rem;
-        }
-
-        .section-title {
-            text-align: center;
-            font-size: 2.2rem;
-            margin-bottom: 3rem;
-            color: var(--primary-color);
-            font-family: 'Cairo', sans-serif;
-        }
-
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 2.5rem;
-        }
-
-        .service-card {
-            background: var(--white);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-            transition: transform 0.3s, box-shadow 0.3s;
-            border-top: 4px solid var(--primary-color);
-        }
-
-        .service-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-        }
-
-        .service-img {
-            height: 200px;
-            background-size: cover;
-            background-position: center;
-        }
-
-        .service-info {
-            padding: 1.8rem;
-            text-align: center;
-        }
-
-        .service-title {
-            font-size: 1.3rem;
-            margin-bottom: 0.8rem;
-            color: var(--primary-color);
-            font-weight: bold;
-        }
-
-        .service-desc {
-            font-size: 0.95rem;
-            color: #64748b;
-            margin-bottom: 1.5rem;
-        }
-
-        .view-btn {
-            background-color: var(--primary-color);
-            color: var(--white);
-            padding: 0.7rem 1.8rem;
-            font-size: 1rem;
-            border-radius: 25px;
-            text-decoration: none;
-            display: inline-block;
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
-
-        .view-btn:hover {
-            background-color: #0096b4;
-        }
-
-        /* الفوتر والتنسيقات المحدثة */
-        footer {
-            background-color: var(--primary-color);
-            color: var(--white);
-            text-align: center;
-            padding: 2.5rem 2rem;
-            margin-top: 4rem;
-            border-top: 2px solid var(--white);
-        }
-
-        footer p {
-            color: var(--white);
-        }
-
-        .footer-credits {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.8rem;
-            margin-top: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .footer-credits img {
-            height: 30px;
-            width: auto;
-            object-fit: contain;
-        }
-
-        .footer-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background-color: var(--white);
-            color: var(--primary-color);
-            text-decoration: none;
-            font-size: 1.1rem;
-            transition: transform 0.3s, background-color 0.3s, color 0.3s;
-        }
-
-        .footer-btn:hover {
-            transform: translateY(-3px);
-            background-color: var(--logo-color);
-            color: #1e293b;
-        }
-
-        @media (max-width: 768px) {
-            nav ul {
-                display: none;
-            }
-            .header-logo-text {
-                font-size: 1.3rem;
-            }
-            .hero h1 {
-                font-size: 1.8rem;
-            }
-        }
+        .toast-animate { animation: slideIn 0.3s ease-out forwards; }
+        .product-img { transition: transform 0.5s ease; }
+        .product-card:hover .product-img { transform: scale(1.08); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body>
+<body class="text-gray-800 bg-[#faf5f8] min-h-screen flex flex-col">
 
-    <!-- الهيدر -->
-    <header>
-        <a href="#home" class="header-logo-text">ميجا لكاميرات المراقبة والامنية</a>
-        <nav>
-            <ul>
-                <li><a href="#home">الرئيسية</a></li>
-                <li>
-                    <div class="nav-contact-container">
-                        <button class="nav-contact-btn" onclick="toggleNavContact()">📞 اتصل بنا</button>
-                        <div id="navSubIcons" class="nav-sub-icons">
-                            <a href="https://wa.me/201010255123" target="_blank" class="nav-sub-btn whatsapp-btn">واتساب</a>
-                            <a href="tel:01010255123" class="nav-sub-btn call-btn">اتصال هاتفي</a>
-                        </div>
+    <!-- Header / Navbar -->
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-sm border-b border-purple-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20 gap-4">
+                <div class="flex items-center gap-3 cursor-pointer" onclick="resetFilters()">
+                    <img src="9.png" alt="لوجو المالكي" class="w-14 h-14 object-contain rounded-full shadow-sm" onerror="this.src='https://placehold.co/100/7e22ce/ffffff?text=المالكي'">
+                    <div>
+                        <h1 class="text-2xl font-extrabold bg-gradient-to-r from-purple-800 to-pink-600 bg-clip-text text-transparent">المالكي</h1>
+                        <p class="text-xs text-purple-600 font-medium">أرقى الملابس الحريمي</p>
                     </div>
-                </li>
-            </ul>
-        </nav>
+                </div>
+
+                <div class="hidden md:flex flex-1 max-w-md mx-4 relative">
+                    <input type="text" id="searchInput" oninput="applyFilters()" 
+                        placeholder="ابحثي عن فستان، عباية، بلوزة..." 
+                        class="w-full pl-4 pr-10 py-2.5 rounded-full border border-purple-200 focus:outline-none focus:ring-2 focus:ring-purple-600 bg-purple-50/30 text-sm">
+                    <i class="fa-solid fa-magnifying-glass absolute right-3.5 top-3.5 text-purple-400"></i>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleCartModal()" class="relative bg-gradient-to-r from-purple-700 to-pink-600 text-white px-5 py-2.5 rounded-full hover:opacity-95 transition shadow-md shadow-purple-200 flex items-center gap-2.5 font-medium">
+                        <i class="fa-solid fa-bag-shopping text-lg"></i>
+                        <span class="hidden sm:inline">سلة التسوق</span>
+                        <span id="cartBadge" class="bg-white text-purple-800 font-bold text-xs px-2 py-0.5 rounded-full shadow-sm">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </header>
 
-    <!-- الواجهة الرئيسية -->
-    <section id="home" class="hero">
-        <div class="hero-img-container">
-            <img src="1.png" alt="ميجا للكاميرات المراقبة">
-        </div>
-
-        <h1>أمانك يبدأ من هنا.. راقب ممتلكاتك لحظة بلحظة</h1>
-        <p>نقدم أفضل حلول كاميرات المراقبة الأمنية (Hikvision & HiLook)، أجهزة التسجيل الرقمي DVR/NVR، وأنظمة الإنذار الذكية للمنازل والشركات والمحلات التجارية.</p>
-
-        <div class="cta-container">
-            <button id="inspectBtn" class="btn" onclick="toggleSubIcons()">اطلب معاينة مجانية</button>
-            <div id="subIcons" class="sub-icons">
-                <a href="https://wa.me/201010255123" target="_blank" class="sub-btn whatsapp-btn">واتساب</a>
-                <a href="tel:01010255123" class="sub-btn call-btn">اتصال</a>
+    <!-- Hero Banner -->
+    <section class="relative w-full h-64 sm:h-80 md:h-96 overflow-hidden mb-8 shadow-md">
+        <img src="9.png" alt="بنر المالكي" class="w-full h-full object-cover object-center" onerror="this.src='https://placehold.co/1200x400/581c87/ffffff?text=المالكي+للملابس+الحريمي'">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex flex-col justify-end p-6 sm:p-12 text-white">
+            <div class="max-w-7xl mx-auto w-full">
+                <span class="bg-pink-600 text-white text-xs px-3 py-1 rounded-full font-semibold inline-block mb-2 shadow">تشكيلة الموسم الجديد</span>
+                <h2 class="text-2xl sm:text-4xl font-extrabold drop-shadow-md">أناقتك تبدأ من المالكي</h2>
+                <p class="text-purple-100 text-sm sm:text-base max-w-xl mt-1 drop-shadow">أرقى الفساتين والعبايات والملابس العصرية المصممة لجميع المناسبات.</p>
             </div>
         </div>
     </section>
 
-    <!-- قسم المنتجات والخدمات -->
-    <div id="services" class="container">
-        <h2 class="section-title">حلول المراقبة والحماية</h2>
-        <div class="services-grid">
-            <!-- منتجات هيكفيجن -->
-            <div class="service-card">
-                <div class="service-img" style="background-image: url('6.png');"></div>
-                <div class="service-info">
-                    <h3 class="service-title">منتجات هيكفيجن (Hikvision)</h3>
-                    <p class="service-desc">كاميرات مراقبة وأجهزة تسجيل عالية الجودة والإنذارات الذكية بمواصفات عالمية.</p>
-                    <a href="gallery.html" class="view-btn">مشاهدة المنتجات</a>
-                </div>
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex-1 w-full mb-16">
+        <!-- Filter Tabs -->
+        <div id="categoryTabs" class="flex items-center justify-start sm:justify-center gap-2 overflow-x-auto pb-4 mb-8 no-scrollbar">
+            <button onclick="setCategory('all')" class="cat-btn active bg-purple-700 text-white px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap shadow-sm">الكل</button>
+        </div>
+
+        <!-- Products Grid -->
+        <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
+            <div class="col-span-full text-center py-20">
+                <i class="fa-solid fa-spinner fa-spin text-4xl text-purple-600 mb-3"></i>
+                <p class="text-gray-600 font-medium">جاري تحميل المنتجات...</p>
             </div>
-            <!-- منتجات هاي لوك -->
-            <div class="service-card">
-                <div class="service-img" style="background-image: url('5.png');"></div>
-                <div class="service-info">
-                    <h3 class="service-title">منتجات هاي لوك (HiLook)</h3>
-                    <p class="service-desc">أنظمة مراقبة اقتصادية وفعالة ومناسبة للمنازل والمحلات التجارية بنقاء صورة ممتاز.</p>
-                    <a href="gallery2.html" class="view-btn">مشاهدة المنتجات</a>
+        </div>
+
+        <div id="noResults" class="hidden text-center py-16">
+            <i class="fa-solid fa-box-open text-6xl text-purple-300 mb-4"></i>
+            <h3 class="text-xl font-bold text-gray-700">لم نجد أي منتجات تطابق بحثك</h3>
+            <button onclick="resetFilters()" class="mt-4 bg-purple-700 text-white px-6 py-2 rounded-full font-medium">عرض جميع المنتجات</button>
+        </div>
+    </main>
+
+    <!-- Cart Modal -->
+    <div id="cartModal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
+        <div id="cartContent" class="fixed left-0 top-0 bottom-0 w-full max-w-md bg-white shadow-2xl p-6 flex flex-col translate-x-full transition-transform duration-300">
+            <div class="flex items-center justify-between pb-4 border-b border-gray-100">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-bag-shopping text-purple-700 text-xl"></i>
+                    <h3 class="text-xl font-extrabold text-gray-800">سلة التسوق</h3>
                 </div>
+                <button onclick="toggleCartModal()" class="w-8 h-8 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div id="cartItemsList" class="flex-1 overflow-y-auto py-4 space-y-4"></div>
+
+            <div class="border-t border-gray-100 pt-4 space-y-4">
+                <div class="flex items-center justify-between text-lg font-bold">
+                    <span>الإجمالي:</span>
+                    <span id="cartTotalPrice" class="text-purple-700">0 ج.م</span>
+                </div>
+                <button onclick="checkout()" class="w-full bg-gradient-to-r from-purple-700 to-pink-600 text-white py-3.5 rounded-xl font-bold">إتمام الطلب الآن</button>
             </div>
         </div>
     </div>
 
-    <!-- الفوتر وتفاصيل الاتصال المحدثة -->
-    <footer id="contact">
-        <p>&copy; جميع الحقوق محفوظة - ميجا للكاميرات</p>
-        <div class="footer-credits">
-            <span>تصميم بواسطة</span>
-            <img src="100.png" alt="شعار التصميم">
-            <a href="tel:01010255123" class="footer-btn" title="اتصال هاتفي"><i class="fa-solid fa-phone"></i></a>
-            <a href="https://wa.me/201010255123" target="_blank" class="footer-btn" title="مراسلة عبر الواتساب"><i class="fa-brands fa-whatsapp"></i></a>
+    <div id="toastContainer" class="fixed bottom-5 left-5 z-50 space-y-2 pointer-events-none"></div>
+
+    <footer class="bg-gray-900 text-gray-300 pt-12 pb-8 border-t border-gray-800 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-gray-500">
+            جميع الحقوق محفوظة © المالكي للملابس الحريمي
         </div>
     </footer>
 
     <script>
-        function toggleSubIcons() {
-            const btn = document.getElementById('inspectBtn');
-            const subIcons = document.getElementById('subIcons');
+        const SHEET_ID = '1IqEeQumHVsjazUIv-3QRngBLFf7PGayjt4yC-mzK3QE';
+        const PUBLISHED_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQTZDOSVs-GQIhmECz0wYF05w9qgVmMT8HqQ3vq8qUp14t69IIG4B934JyAuspIR_r_ajtAQjoXUi60/pub?output=csv';
+
+        // بيانات احتياطية تعمل فوراً في حال عدم وجود إنترنت أو استمرار حظر الملف المحلي
+        const fallbackRawData = [
+            { id: "1", title: "فستان سهرة راقي", category: "فساتين", image: "9.png", badge: "الأكثر مبيعاً", size: "S", price: 700, stock: 5 },
+            { id: "1", title: "فستان سهرة راقي", category: "فساتين", image: "9.png", badge: "الأكثر مبيعاً", size: "M", price: 750, stock: 3 },
+            { id: "1", title: "فستان سهرة راقي", category: "فساتين", image: "9.png", badge: "الأكثر مبيعاً", size: "L", price: 800, stock: 2 },
+            { id: "2", title: "عباية كاجوال حديثة", category: "عبايات", image: "9.png", badge: "جديد", size: "M", price: 500, stock: 10 },
+            { id: "2", title: "عباية كاجوال حديثة", category: "عبايات", image: "9.png", badge: "جديد", size: "L", price: 550, stock: 4 }
+        ];
+
+        let products = [];
+        let cart = [];
+        let selectedSizes = {};
+        let selectedQuantities = {};
+        let currentCategory = 'all';
+
+        async function fetchProductsFromSheet() {
+            // محاولة 1: الربط مع AllOrigins Proxy
+            try {
+                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(PUBLISHED_URL)}`;
+                const res = await fetch(proxyUrl);
+                if (res.ok) {
+                    const text = await res.text();
+                    parseCSVData(text);
+                    return;
+                }
+            } catch (e) {
+                console.warn("المحاولة الأولى عبر AllOrigins تعذرت...");
+            }
+
+            // محاولة 2: القراءة المباشرة من PapaParse
+            Papa.parse(PUBLISHED_URL, {
+                download: true,
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    if (results.data && results.data.length > 0) {
+                        const rawData = results.data.map(row => ({
+                            id: (row.id || row.ID || '').toString().trim(),
+                            title: (row.title || row.Title || '').trim(),
+                            category: (row.category || row.Category || 'عام').trim(),
+                            image: (row.image || row.Image || '9.png').trim(),
+                            badge: (row.badge || row.Badge || '').trim() || null,
+                            size: (row.size || row.Size || 'M').trim(),
+                            price: Number(row.price || row.Price || 0),
+                            stock: Number(row.stock || row.Stock || 0)
+                        })).filter(item => item.id !== '');
+
+                        if (rawData.length > 0) {
+                            processRawData(rawData);
+                            return;
+                        }
+                    }
+                    // الاستعانة بالبيانات الاحتياطية في حال تعثر الجلب المباشر
+                    useFallbackData();
+                },
+                error: function() {
+                    useFallbackData();
+                }
+            });
+        }
+
+        function parseCSVData(csvText) {
+            Papa.parse(csvText, {
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    const rawData = results.data.map(row => ({
+                        id: (row.id || row.ID || '').toString().trim(),
+                        title: (row.title || row.Title || '').trim(),
+                        category: (row.category || row.Category || 'عام').trim(),
+                        image: (row.image || row.Image || '9.png').trim(),
+                        badge: (row.badge || row.Badge || '').trim() || null,
+                        size: (row.size || row.Size || 'M').trim(),
+                        price: Number(row.price || row.Price || 0),
+                        stock: Number(row.stock || row.Stock || 0)
+                    })).filter(item => item.id !== '');
+
+                    if (rawData.length > 0) {
+                        processRawData(rawData);
+                    } else {
+                        useFallbackData();
+                    }
+                }
+            });
+        }
+
+        function useFallbackData() {
+            console.log("تم تحميل البيانات الاحتياطية بنجاح.");
+            processRawData(fallbackRawData);
+        }
+
+        function processRawData(rawData) {
+            const grouped = {};
+
+            rawData.forEach(item => {
+                if (!item.id) return;
+                if (!grouped[item.id]) {
+                    grouped[item.id] = {
+                        id: item.id,
+                        title: item.title,
+                        category: item.category,
+                        image: item.image,
+                        badge: item.badge,
+                        sizes: {}
+                    };
+                }
+                grouped[item.id].sizes[item.size] = {
+                    price: item.price,
+                    stock: item.stock
+                };
+            });
+
+            products = Object.values(grouped);
+
+            products.forEach(p => {
+                const firstSize = Object.keys(p.sizes)[0];
+                selectedSizes[p.id] = firstSize;
+                selectedQuantities[p.id] = 1;
+            });
+
+            renderCategoryTabs();
+            renderProducts(products);
+        }
+
+        function renderCategoryTabs() {
+            const categories = ['all', ...new Set(products.map(p => p.category))];
+            const container = document.getElementById('categoryTabs');
             
-            btn.classList.toggle('clicked');
-            subIcons.classList.toggle('show');
+            container.innerHTML = categories.map(cat => `
+                <button onclick="setCategory('${cat}')" 
+                    class="cat-btn ${cat === 'all' ? 'active bg-purple-700 text-white' : 'bg-white text-gray-700'} border border-purple-200 px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap">
+                    ${cat === 'all' ? 'الكل' : cat}
+                </button>
+            `).join('');
         }
 
-        function toggleNavContact() {
-            const navSubIcons = document.getElementById('navSubIcons');
-            navSubIcons.classList.toggle('show');
+        function renderProducts(itemsToRender) {
+            const grid = document.getElementById('productsGrid');
+            const noResults = document.getElementById('noResults');
+
+            if (itemsToRender.length === 0) {
+                grid.innerHTML = '';
+                noResults.classList.remove('hidden');
+                return;
+            }
+
+            noResults.classList.add('hidden');
+            grid.innerHTML = itemsToRender.map(product => {
+                const availableSizes = Object.keys(product.sizes);
+                const currentSize = selectedSizes[product.id] || availableSizes[0];
+                const currentQty = selectedQuantities[product.id] || 1;
+                const sizeData = product.sizes[currentSize] || { price: 0, stock: 0 };
+
+                return `
+                <div class="product-card bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-purple-50 flex flex-col justify-between group">
+                    <div>
+                        <div class="relative w-full h-72 bg-purple-50 overflow-hidden">
+                            <img src="${product.image}" alt="${product.title}" 
+                                class="product-img w-full h-full object-cover object-center"
+                                onerror="this.src='9.png'">
+                            ${product.badge ? `<span class="absolute top-3 right-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">${product.badge}</span>` : ''}
+                        </div>
+
+                        <div class="p-5 text-center">
+                            <span class="text-xs text-purple-600 font-semibold bg-purple-50 px-2.5 py-0.5 rounded-full inline-block mb-2">${product.category}</span>
+                            <h3 class="text-lg font-bold text-gray-800 mb-1">${product.title}</h3>
+                            <p class="text-xl font-extrabold text-pink-600 mb-4">${sizeData.price} <span class="text-xs text-gray-500 font-normal">ج.م</span></p>
+
+                            <div class="mb-4">
+                                <label class="block text-xs font-medium text-gray-500 mb-1.5">اختاري المقاس:</label>
+                                <div class="flex justify-center gap-1.5 flex-wrap">
+                                    ${availableSizes.map(size => `
+                                        <button onclick="selectSize('${product.id}', '${size}')" 
+                                            class="size-btn ${currentSize === size ? 'selected' : ''} w-9 h-8 rounded-lg border border-gray-200 text-xs font-bold text-gray-700 hover:border-purple-600 transition flex items-center justify-center">
+                                            ${size}
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            <div class="mb-4 flex items-center justify-center">
+                                <div class="inline-flex items-center border border-purple-200 rounded-full bg-purple-50/50 p-1">
+                                    <button onclick="updateQty('${product.id}', -1)" class="w-8 h-8 rounded-full bg-white shadow-sm text-purple-800 font-bold text-lg flex items-center justify-center">-</button>
+                                    <span class="w-12 text-center font-bold text-sm text-gray-800">${currentQty}</span>
+                                    <button onclick="updateQty('${product.id}', 1)" class="w-8 h-8 rounded-full bg-white shadow-sm text-purple-800 font-bold text-lg flex items-center justify-center">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="px-5 pb-5 pt-0">
+                        <button onclick="addToCart('${product.id}')" class="w-full bg-gradient-to-r from-purple-700 to-pink-600 text-white py-2.5 px-4 rounded-xl font-bold shadow-md flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-cart-plus"></i>
+                            <span>إضافة للسلة</span>
+                        </button>
+                    </div>
+                </div>
+                `;
+            }).join('');
         }
 
-        window.addEventListener('click', function(e) {
-            const ctaContainer = document.querySelector('.cta-container');
-            if (ctaContainer && !ctaContainer.contains(e.target)) {
-                document.getElementById('inspectBtn').classList.remove('clicked');
-                document.getElementById('subIcons').classList.remove('show');
+        function selectSize(productId, size) {
+            selectedSizes[productId] = size;
+            applyFilters();
+        }
+
+        function updateQty(productId, change) {
+            const product = products.find(p => p.id == productId);
+            const currentSize = selectedSizes[productId];
+            const sizeData = product.sizes[currentSize];
+            let current = selectedQuantities[productId] || 1;
+
+            const inCart = cart.filter(item => item.id == productId && item.size === currentSize).reduce((sum, item) => sum + item.qty, 0);
+
+            if (change > 0 && (current + inCart + 1 > sizeData.stock)) {
+                showToast(`عذراً، أقصى كمية متاحة للمقاس (${currentSize}) هي ${sizeData.stock} قطع فقط!`, true);
+                return;
             }
 
-            const navContainer = document.querySelector('.nav-contact-container');
-            if (navContainer && !navContainer.contains(e.target)) {
-                document.getElementById('navSubIcons').classList.remove('show');
+            current += change;
+            if (current < 1) current = 1;
+            selectedQuantities[productId] = current;
+            applyFilters();
+        }
+
+        function addToCart(productId) {
+            const product = products.find(p => p.id == productId);
+            const size = selectedSizes[productId];
+            const sizeData = product.sizes[size];
+            const qty = selectedQuantities[productId] || 1;
+
+            const inCart = cart.filter(item => item.id == productId && item.size === size).reduce((sum, item) => sum + item.qty, 0);
+
+            if (inCart + qty > sizeData.stock) {
+                showToast(`عذراً، الكمية المتاحة في المخزن لمقاس (${size}) هي ${sizeData.stock} فقط!`, true);
+                return;
             }
-        });
+
+            const existingIndex = cart.findIndex(item => item.id == productId && item.size === size);
+
+            if (existingIndex > -1) {
+                cart[existingIndex].qty += qty;
+            } else {
+                cart.push({
+                    id: product.id,
+                    title: product.title,
+                    price: sizeData.price,
+                    image: product.image,
+                    size: size,
+                    qty: qty
+                });
+            }
+
+            selectedQuantities[productId] = 1;
+            applyFilters();
+            updateCartUI();
+            showToast(`تمت إضافة "${product.title}" مقاس (${size}) إلى السلة!`);
+        }
+
+        function updateCartUI() {
+            document.getElementById('cartBadge').innerText = cart.reduce((sum, item) => sum + item.qty, 0);
+            const cartList = document.getElementById('cartItemsList');
+            const cartTotal = document.getElementById('cartTotalPrice');
+
+            if (cart.length === 0) {
+                cartList.innerHTML = `<div class="text-center py-12 text-gray-400"><p>سلة التسوق فارغة</p></div>`;
+                cartTotal.innerText = '0 ج.م';
+                return;
+            }
+
+            let totalPrice = 0;
+            cartList.innerHTML = cart.map((item, index) => {
+                const itemTotal = item.price * item.qty;
+                totalPrice += itemTotal;
+                return `
+                    <div class="flex items-center gap-3 p-3 bg-purple-50/50 rounded-xl border border-purple-100">
+                        <img src="${item.image}" class="w-16 h-16 object-cover rounded-lg bg-white" onerror="this.src='9.png'">
+                        <div class="flex-1">
+                            <h4 class="font-bold text-sm text-gray-800">${item.title}</h4>
+                            <p class="text-xs text-purple-700 font-semibold">المقاس: ${item.size} | ${item.price} ج.م</p>
+                            <span class="text-xs text-gray-500">الكمية: ${item.qty}</span>
+                        </div>
+                        <div class="text-left">
+                            <span class="block font-bold text-sm text-pink-600">${itemTotal} ج.م</span>
+                            <button onclick="removeFromCart(${index})" class="text-xs text-red-500 hover:underline mt-1">حذف</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            cartTotal.innerText = `${totalPrice} ج.م`;
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+        }
+
+        function toggleCartModal() {
+            const modal = document.getElementById('cartModal');
+            const content = document.getElementById('cartContent');
+            modal.classList.toggle('opacity-0');
+            modal.classList.toggle('pointer-events-none');
+            content.classList.toggle('translate-x-full');
+        }
+
+        function setCategory(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.classList.remove('bg-purple-700', 'text-white');
+                btn.classList.add('bg-white', 'text-gray-700');
+            });
+            event.target.classList.remove('bg-white', 'text-gray-700');
+            event.target.classList.add('bg-purple-700', 'text-white');
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const searchTerm = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+            const filtered = products.filter(p => {
+                const matchesCat = (currentCategory === 'all' || p.category === currentCategory);
+                const matchesSearch = p.title.toLowerCase().includes(searchTerm);
+                return matchesCat && matchesSearch;
+            });
+            renderProducts(filtered);
+        }
+
+        function resetFilters() {
+            currentCategory = 'all';
+            document.getElementById('searchInput').value = '';
+            applyFilters();
+        }
+
+        function showToast(message, isError = false) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const bgColor = isError ? 'bg-red-900 border-red-500/30' : 'bg-gray-900 border-purple-500/30';
+            toast.className = `toast-animate ${bgColor} text-white text-sm py-3 px-5 rounded-xl shadow-2xl flex items-center gap-2 pointer-events-auto border`;
+            toast.innerHTML = `<span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        window.onload = fetchProductsFromSheet;
     </script>
-
 </body>
 </html>

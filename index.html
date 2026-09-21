@@ -35,9 +35,59 @@
         .product-card:hover .product-img { transform: scale(1.08); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* أنيميشن زر اطلب الآن (توهج وتغير لون متوهج وحركة) */
+        @keyframes glowingAnimation {
+            0% {
+                background-position: 0% 50%;
+                box-shadow: 0 0 8px rgba(236, 72, 153, 0.6), 0 0 15px rgba(126, 34, 206, 0.4);
+                transform: scale(1);
+            }
+            50% {
+                background-position: 100% 50%;
+                box-shadow: 0 0 22px rgba(236, 72, 153, 1), 0 0 35px rgba(168, 85, 247, 0.9);
+                transform: scale(1.03);
+            }
+            100% {
+                background-position: 0% 50%;
+                box-shadow: 0 0 8px rgba(236, 72, 153, 0.6), 0 0 15px rgba(126, 34, 206, 0.4);
+                transform: scale(1);
+            }
+        }
+
+        .btn-glow {
+            background: linear-gradient(90deg, #7e22ce, #db2777, #e11d48, #7e22ce);
+            background-size: 300% 300%;
+            animation: glowingAnimation 2.5s infinite ease-in-out;
+        }
+
+        /* أنيميشن شريط الإعلان المتحرك سطر مستمر */
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .animate-marquee {
+            display: inline-block;
+            white-space: nowrap;
+            animation: marquee 15s linear infinite;
+        }
+        .marquee-container:hover .animate-marquee {
+            animation-play-state: paused;
+        }
     </style>
 </head>
 <body class="text-gray-800 min-h-screen flex flex-col">
+
+    <!-- شريط الإعلان المتحرك -->
+    <div class="bg-gradient-to-r from-purple-900 via-pink-700 to-purple-900 text-white py-2.5 overflow-hidden relative border-b border-pink-400 shadow-md marquee-container">
+        <div class="animate-marquee font-bold text-sm sm:text-base flex items-center gap-4">
+            <span class="bg-yellow-400 text-purple-950 px-3 py-0.5 rounded-full text-xs font-black animate-pulse">🎉 افتتاح جديد</span>
+            <span>تخفيضات بمناسبة افتتاح الفرع الجديد بالمرج! خصم يصل إلى <span class="text-yellow-300 font-extrabold underline text-lg">30%</span> لفترة محدودة 🛍️</span>
+            <span class="mx-6 text-pink-300">✦</span>
+            <span class="bg-yellow-400 text-purple-950 px-3 py-0.5 rounded-full text-xs font-black animate-pulse">🚚 شحن مجاني</span>
+            <span>احصلي على شحن مجاني عند الشراء بقيمة 1500 جنيه أو أكثر! </span>
+        </div>
+    </div>
 
     <!-- Header / Navbar -->
     <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-sm border-b border-purple-100">
@@ -74,9 +124,9 @@
         <img src="9.png" alt="بنر المالكي" class="w-full h-full object-cover object-center" onerror="this.src='https://placehold.co/1200x400/581c87/ffffff?text=المالكي+للملابس+الحريمي'">
         <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex flex-col justify-end p-6 sm:p-12 text-white">
             <div class="max-w-7xl mx-auto w-full">
-                <span class="bg-pink-600 text-white text-xs px-3 py-1 rounded-full font-semibold inline-block mb-2 shadow">تشكيلة الموسم الجديد</span>
+                <span class="bg-pink-600 text-white text-xs px-3 py-1 rounded-full font-semibold inline-block mb-2 shadow">افتتاح فرع المرج الجديد 🎊</span>
                 <h2 class="text-2xl sm:text-4xl font-extrabold drop-shadow-md">أناقتك تبدأ من المالكي</h2>
-                <p class="text-purple-100 text-sm sm:text-base max-w-xl mt-1 drop-shadow">أرقى الفساتين والعبايات والملابس العصرية المصممة لجميع المناسبات.</p>
+                <p class="text-purple-100 text-sm sm:text-base max-w-xl mt-1 drop-shadow">استمتعي بخصومات تصل إلى 30% على تشكيلة الموسم الجديد بمناسبة افتتاح الفرع الجديد بالمرج.</p>
             </div>
         </div>
     </section>
@@ -136,7 +186,11 @@
                     <span>الإجمالي الكلي:</span>
                     <span id="cartTotalPrice" class="text-purple-700">0 ج.م</span>
                 </div>
-                <button onclick="checkout()" class="w-full bg-gradient-to-r from-purple-700 to-pink-600 text-white py-3.5 rounded-xl font-bold hover:opacity-95 transition shadow-lg">إتمام الطلب الآن</button>
+                <!-- زر متوهج ومتحرك لإتمام الطلب -->
+                <button onclick="checkout()" class="btn-glow w-full text-white py-3.5 rounded-xl font-extrabold transition shadow-lg flex items-center justify-center gap-2 text-base">
+                    <i class="fa-solid fa-bolt text-yellow-300 animate-bounce"></i>
+                    <span>إتمام الطلب الآن</span>
+                </button>
             </div>
         </div>
     </div>
@@ -145,7 +199,7 @@
 
     <footer class="bg-gray-900 text-gray-300 pt-12 pb-8 border-t border-gray-800 mt-auto">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-gray-500">
-            جميع الحقوق محفوظة © المالكي للملابس الحريمي
+            جميع الحقوق محفوظة © المالكي للملابس الحريمي - فرع المرج الجديد
         </div>
     </footer>
 
@@ -165,14 +219,13 @@
         let selectedSizes = {};
         let selectedQuantities = {};
         let currentCategory = 'all';
-        let isDataLoaded = false; // لمنع إعادة الجلب المكرر
+        let isDataLoaded = false;
 
         async function fetchProductsFromSheet() {
             if (isDataLoaded) return;
 
-            // استخدام PapaParse المباشر والسريع مع مهلة زمنية (Timeout)
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 4000); // إيقاف الانتظار بعد 4 ثواني واستخدام البيانات الاحتياطية سريعا
+            const timeoutId = setTimeout(() => controller.abort(), 4000);
 
             try {
                 const response = await fetch(PUBLISHED_URL, { signal: controller.signal });
@@ -320,9 +373,9 @@
                     </div>
 
                     <div class="px-5 pb-5 pt-0">
-                        <button onclick="addToCart('${product.id}')" class="w-full bg-gradient-to-r from-purple-700 to-pink-600 text-white py-2.5 px-4 rounded-xl font-bold shadow-md flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-cart-plus"></i>
-                            <span>إضافة للسلة</span>
+                        <button onclick="addToCart('${product.id}')" class="btn-glow w-full text-white py-2.5 px-4 rounded-xl font-bold shadow-md flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-cart-plus text-yellow-300"></i>
+                            <span>اطلبي الآن</span>
                         </button>
                     </div>
                 </div>
@@ -428,8 +481,8 @@
             let shipping = subtotal >= 1500 ? 0 : 50;
 
             if (subtotal >= 1500) {
-                shippingFee.innerHTML = `<span class="line-through text-gray-400 text-xs ml-1">50 ج.م</span> <span class="text-green-600">مجاناً 🎉</span>`;
-                shippingBanner.innerHTML = `🎉 مبروك! حصلت على <span class="text-green-700">شحن مجاني</span> لمشترياتك!`;
+                shippingFee.innerHTML = `<span class="line-through text-gray-400 text-xs ml-1">50 ج.م</span> <span class="text-green-600 font-bold">مجاناً 🎉</span>`;
+                shippingBanner.innerHTML = `🎉 مبروك! حصلت على <span class="text-green-700 font-bold">شحن مجاني</span> لمشترياتك!`;
             } else {
                 const remaining = 1500 - subtotal;
                 shippingFee.innerText = '50 ج.م';

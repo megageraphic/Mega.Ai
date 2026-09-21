@@ -150,7 +150,6 @@
     </footer>
 
     <script>
-        const SHEET_ID = '1IqEeQumHVsjazUIv-3QRngBLFf7PGayjt4yC-mzK3QE';
         const PUBLISHED_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQTZDOSVs-GQIhmECz0wYF05w9qgVmMT8HqQ3vq8qUp14t69IIG4B934JyAuspIR_r_ajtAQjoXUi60/pub?output=csv';
 
         const fallbackRawData = [
@@ -166,48 +165,28 @@
         let selectedSizes = {};
         let selectedQuantities = {};
         let currentCategory = 'all';
+        let isDataLoaded = false; // لمنع إعادة الجلب المكرر
 
         async function fetchProductsFromSheet() {
+            if (isDataLoaded) return;
+
+            // استخدام PapaParse المباشر والسريع مع مهلة زمنية (Timeout)
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 4000); // إيقاف الانتظار بعد 4 ثواني واستخدام البيانات الاحتياطية سريعا
+
             try {
-                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(PUBLISHED_URL)}`;
-                const res = await fetch(proxyUrl);
-                if (res.ok) {
-                    const text = await res.text();
-                    parseCSVData(text);
+                const response = await fetch(PUBLISHED_URL, { signal: controller.signal });
+                clearTimeout(timeoutId);
+                if (response.ok) {
+                    const csvText = await response.text();
+                    parseCSVData(csvText);
                     return;
                 }
             } catch (e) {
-                console.warn("المحاولة الأولى تعذرت...");
+                console.warn("تعذر الجلب المباشر أو انتهت المهلة، استخدام البيانات الاحتياطية.");
             }
 
-            Papa.parse(PUBLISHED_URL, {
-                download: true,
-                header: true,
-                skipEmptyLines: true,
-                complete: function(results) {
-                    if (results.data && results.data.length > 0) {
-                        const rawData = results.data.map(row => ({
-                            id: (row.id || row.ID || '').toString().trim(),
-                            title: (row.title || row.Title || '').trim(),
-                            category: (row.category || row.Category || 'عام').trim(),
-                            image: (row.image || row.Image || '9.png').trim(),
-                            badge: (row.badge || row.Badge || '').trim() || null,
-                            size: (row.size || row.Size || 'M').trim(),
-                            price: Number(row.price || row.Price || 0),
-                            stock: Number(row.stock || row.Stock || 0)
-                        })).filter(item => item.id !== '');
-
-                        if (rawData.length > 0) {
-                            processRawData(rawData);
-                            return;
-                        }
-                    }
-                    useFallbackData();
-                },
-                error: function() {
-                    useFallbackData();
-                }
-            });
+            useFallbackData();
         }
 
         function parseCSVData(csvText) {
@@ -268,6 +247,7 @@
                 selectedQuantities[p.id] = 1;
             });
 
+            isDataLoaded = true;
             renderCategoryTabs();
             renderProducts(products);
         }
@@ -277,7 +257,7 @@
             const container = document.getElementById('categoryTabs');
             
             container.innerHTML = categories.map(cat => `
-                <button onclick="setCategory('${cat}')" 
+                <button onclick="setCategory('${cat}', event)" 
                     class="cat-btn ${cat === 'all' ? 'active bg-purple-700 text-white' : 'bg-white text-gray-700'} border border-purple-200 px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap">
                     ${cat === 'all' ? 'الكل' : cat}
                 </button>
@@ -306,6 +286,7 @@
                     <div>
                         <div class="relative w-full h-72 bg-purple-50 overflow-hidden">
                             <img src="${product.image}" alt="${product.title}" 
+                                loading="lazy"
                                 class="product-img w-full h-full object-cover object-center"
                                 onerror="this.src='9.png'">
                             ${product.badge ? `<span class="absolute top-3 right-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">${product.badge}</span>` : ''}
@@ -444,7 +425,6 @@
                 `;
             }).join('');
 
-            // احتساب الشحن المجاني عند الوصول لـ 1500 ج.م
             let shipping = subtotal >= 1500 ? 0 : 50;
 
             if (subtotal >= 1500) {
@@ -473,14 +453,16 @@
             content.classList.toggle('translate-x-full');
         }
 
-        function setCategory(cat) {
+        function setCategory(cat, e) {
             currentCategory = cat;
             document.querySelectorAll('.cat-btn').forEach(btn => {
                 btn.classList.remove('bg-purple-700', 'text-white');
                 btn.classList.add('bg-white', 'text-gray-700');
             });
-            event.target.classList.remove('bg-white', 'text-gray-700');
-            event.target.classList.add('bg-purple-700', 'text-white');
+            if (e) {
+                e.target.classList.remove('bg-white', 'text-gray-700');
+                e.target.classList.add('bg-purple-700', 'text-white');
+            }
             applyFilters();
         }
 
